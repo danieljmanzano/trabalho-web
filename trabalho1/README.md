@@ -4,8 +4,8 @@ Este é o primeiro projeto da disciplina de **Introdução ao Desenvolvimento We
 
 ## Desenvolvido por:
 - Daniel Jorge Manzano - 15446861
-- Heitor Gomes de Oliveira - 
-- Newton Eduardo Pena Villegas -
+- Heitor Gomes de Oliveira - 15458350
+- Newton Eduardo Pena Villegas - 15481732
 
 ## Tecnologias utilizadas
 
