@@ -1,0 +1,31 @@
+# dependências e build
+node_modules/
+.next/
+dist/
+
+# variáveis de ambiente
+.env
+.env*.local
+.env.*.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# sistemas operacionais
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# lock file do pnpm (o projeto é npm, mas migramos do pnpm)
+pnpm-lock.yaml
+
+# Vercel (se usar)
+.vercel/
+
+# cache
+.eslintcache

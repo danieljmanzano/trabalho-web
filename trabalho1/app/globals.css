@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+:root {
+  --background: #080c0f;
+  --foreground: #f5f5f5;
+  --card: #0d1217;
+  --primary: #d1a84b;
+  --primary-foreground: #080c0f;
+  --secondary: #1a1f24;
+  --muted-foreground: #9ca3af;
+  --destructive: #ef4444;
+  --border: #2a2f35;
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --radius-lg: var(--radius);
+}
+
+/* aplica a todos os elementos <body> do site, por padrão, o fundo escuro e texto claro*/
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}
