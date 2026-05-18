@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
-from app.routes import auth
+from app.routes import auth, projetos
+from app.models import projeto  # noqa: F401 — garante que a tabela seja criada
 
 # Cria as tabelas no banco de dados (se não existirem)
 Base.metadata.create_all(bind=engine)
@@ -24,6 +25,7 @@ app.add_middleware(
 
 # Rotas
 app.include_router(auth.router)
+app.include_router(projetos.router)
 
 
 @app.get("/", tags=["Health"])

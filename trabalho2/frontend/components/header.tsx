@@ -20,6 +20,12 @@ export function Header() {
             Início
           </a>
           <a
+            href="/portfolio"
+            className="text-sm text-foreground hover:text-primary"
+          >
+            Portfólio
+          </a>
+          <a
             href="/consultoria"
             className="text-sm text-foreground hover:text-primary"
           >

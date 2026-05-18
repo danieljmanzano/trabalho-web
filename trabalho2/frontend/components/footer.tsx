@@ -13,6 +13,7 @@ export function Footer() {
 
   const navLinks = [
     { href: "/", label: "Início" },
+    { href: "/portfolio", label: "Portfólio" },
     { href: "/consultoria", label: "Consultoria" },
     { href: "/login", label: "Login" },
     { href: "/cadastro", label: "Cadastro" },
