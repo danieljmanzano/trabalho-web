@@ -1,0 +1,16 @@
+# frontend (Next.js) 
+frontend/node_modules/
+frontend/.next/
+frontend/.env*.local
+
+# backend (Python)
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/.env
+backend/database.db
+
+# geral
+.DS_Store
+*.log
