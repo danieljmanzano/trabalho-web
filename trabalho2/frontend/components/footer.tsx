@@ -11,18 +11,10 @@ export function Footer() {
     { icon: Linkedin, href: "https://linked.in", label: "LinkedIn" },
   ]
 
-  const navLinks = [
-    { href: "/", label: "Início" },
-    { href: "/portfolio", label: "Portfólio" },
-    { href: "/consultoria", label: "Consultoria" },
-    { href: "/login", label: "Login" },
-    { href: "/cadastro", label: "Cadastro" },
-  ]
-
   return (
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12">
           {/* texto */}
           <div>
             <a href="#inicio" className="flex flex-col mb-4">
@@ -37,22 +29,6 @@ export function Footer() {
               Transformando espaços com excelência técnica e criatividade.
               Sua visão, nossa expertise.
             </p>
-          </div>
-
-          {/* navegação */}
-          <div>
-            <h4 className="text-foreground font-semibold mb-4">Navegação</h4>
-            <nav className="flex flex-col gap-2">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-primary transition-colors text-sm"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </nav>
           </div>
 
           {/* redes sociais */}

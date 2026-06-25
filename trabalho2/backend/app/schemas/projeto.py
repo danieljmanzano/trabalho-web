@@ -9,7 +9,8 @@ class ProjetoCreate(BaseModel):
     descricao: str | None = None
     data_inicio: date
     data_fim: date | None = None  # None = em andamento
-    imagem_url: str | None = None
+    imagem_data: str | None = None
+    imagem_tipo: str | None = None
 
 
 class ProjetoUpdate(BaseModel):
@@ -19,7 +20,8 @@ class ProjetoUpdate(BaseModel):
     descricao: str | None = None
     data_inicio: date | None = None
     data_fim: date | None = None
-    imagem_url: str | None = None
+    imagem_data: str | None = None
+    imagem_tipo: str | None = None
 
 
 class ProjetoResponse(BaseModel):
@@ -30,7 +32,8 @@ class ProjetoResponse(BaseModel):
     descricao: str | None
     data_inicio: date
     data_fim: date | None
-    imagem_url: str | None
+    imagem_data: str | None
+    imagem_tipo: str | None
     criado_em: datetime
 
     class Config:

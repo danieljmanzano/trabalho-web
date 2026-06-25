@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, X, LogOut } from "lucide-react"
+import { Plus, X } from "lucide-react"
 import { ConsultaCard } from "@/components/consulta"
 import {
   Consulta,
@@ -14,7 +14,9 @@ import {
   updateConsulta,
   deleteConsulta,
 } from "@/lib/consultas"
-import { getCurrentUser, logout } from "@/lib/auth"
+import { getCurrentUser } from "@/lib/auth"
+import { ErrorBanner } from "@/components/error-banner"
+import { DateInput, SelectField, TextareaField, TextInput } from "@/components/input"
 
 interface FormState {
   data: string
@@ -140,11 +142,6 @@ export default function Consultoria() {
     }
   }
 
-  const handleLogout = () => {
-    logout()
-    router.push("/login")
-  }
-
   return (
     <main className="min-h-screen bg-background flex flex-col">
       <div className="flex-1">
@@ -158,19 +155,10 @@ export default function Consultoria() {
                 Olá, <strong>{nomeUsuario}</strong>. Gerencie suas consultorias.
               </p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mt-2"
-            >
-              <LogOut size={16} />
-              Sair
-            </button>
           </div>
 
           {error && (
-            <div className="max-w-4xl mx-auto mb-6 p-4 bg-destructive/10 border border-destructive rounded text-destructive text-sm">
-              {error}
-            </div>
+            <ErrorBanner message={error} className="max-w-4xl mx-auto mb-6" />
           )}
 
           <div className="max-w-4xl mx-auto mb-8">
@@ -208,7 +196,7 @@ export default function Consultoria() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50 p-4">
           <div className="bg-background border rounded w-full max-w-md">
             <div className="flex items-center justify-between p-6 border-b">
               <h2 className="font-serif text-2xl font-bold text-foreground">
@@ -221,92 +209,67 @@ export default function Consultoria() {
 
             <form onSubmit={handleSalvar} className="p-6 space-y-5">
               {erros.geral && (
-                <div className="p-3 bg-destructive/10 border border-destructive rounded text-destructive text-sm">
-                  {erros.geral}
-                </div>
+                <ErrorBanner message={erros.geral} />
               )}
 
               {/* Data */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">Data</label>
-                <input
-                  type="date"
-                  value={form.data}
-                  onChange={(e) => handleDataChange(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 bg-card border rounded text-foreground"
-                />
-                {erros.data && (
-                  <span className="text-sm text-destructive">{erros.data}</span>
-                )}
-              </div>
+              <DateInput
+                label="Data"
+                value={form.data}
+                onChange={(e) => handleDataChange(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                error={erros.data}
+              />
 
               {/* Horário */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">Horário</label>
-                <select
-                  value={form.horario}
-                  onChange={(e) => {
-                    setForm((prev) => ({ ...prev, horario: e.target.value as HorarioValue }))
-                    if (erros.horario) setErros((prev) => ({ ...prev, horario: "" }))
-                  }}
-                  disabled={!form.data}
-                  style={{ color: form.horario === '' ? 'white' : 'black' }}
-                  className="w-full px-4 py-3 bg-card border rounded text-foreground text-gray-900 disabled:opacity-50"
-                >
-                  <option value="" style={{ color: 'white' }}>
-                    {form.data ? "Selecione um horário" : "Selecione a data primeiro"}
-                  </option>
-                  {horariosDisponiveis.map((valor) => {
-                    const h = HORARIOS.find((x) => x.value === valor)
-                    return (
-                      <option key={valor} value={valor} style={{ color: 'black' }}>
-                        {h?.label ?? valor}
-                      </option>
-                    )
-                  })}
-                </select>
+              <SelectField
+                label="Horário"
+                value={form.horario}
+                onChange={(e) => {
+                  setForm((prev) => ({ ...prev, horario: e.target.value as HorarioValue }))
+                  if (erros.horario) setErros((prev) => ({ ...prev, horario: "" }))
+                }}
+                disabled={!form.data}
+                error={erros.horario}
+              >
+                <option value="">
+                  {form.data ? "Selecione um horário" : "Selecione a data primeiro"}
+                </option>
+                {horariosDisponiveis.map((valor) => {
+                  const h = HORARIOS.find((x) => x.value === valor)
+                  return (
+                    <option key={valor} value={valor}>
+                      {h?.label ?? valor}
+                    </option>
+                  )
+                })}
                 {form.data && horariosDisponiveis.length === 0 && (
                   <span className="text-sm text-destructive">
                     Todos os horários desta data estão ocupados
                   </span>
                 )}
-                {erros.horario && (
-                  <span className="text-sm text-destructive">{erros.horario}</span>
-                )}
-              </div>
+              </SelectField>
 
               {/* Cliente */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">Cliente</label>
-                <input
-                  type="text"
-                  value={form.cliente}
-                  onChange={(e) => {
-                    setForm((prev) => ({ ...prev, cliente: e.target.value }))
-                    if (erros.cliente) setErros((prev) => ({ ...prev, cliente: "" }))
-                  }}
-                  placeholder="Nome do cliente"
-                  className="w-full px-4 py-3 bg-card border rounded text-foreground"
-                />
-                {erros.cliente && (
-                  <span className="text-sm text-destructive">{erros.cliente}</span>
-                )}
-              </div>
+              <TextInput
+                label="Cliente"
+                value={form.cliente}
+                onChange={(e) => {
+                  setForm((prev) => ({ ...prev, cliente: e.target.value }))
+                  if (erros.cliente) setErros((prev) => ({ ...prev, cliente: "" }))
+                }}
+                placeholder="Nome do cliente"
+                error={erros.cliente}
+              />
 
               {/* Descrição */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">
-                  Descrição <span className="text-muted-foreground">(opcional)</span>
-                </label>
-                <textarea
-                  value={form.descricao}
-                  onChange={(e) => setForm((prev) => ({ ...prev, descricao: e.target.value }))}
-                  placeholder="Detalhes da consultoria..."
-                  rows={3}
-                  className="w-full px-4 py-3 bg-card border rounded text-foreground resize-none"
-                />
-              </div>
+              <TextareaField
+                label="Descrição (opcional)"
+                value={form.descricao}
+                onChange={(e) => setForm((prev) => ({ ...prev, descricao: e.target.value }))}
+                placeholder="Detalhes da consultoria..."
+                rows={3}
+              />
 
               <div className="flex gap-3 pt-2">
                 <button

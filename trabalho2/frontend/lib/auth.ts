@@ -49,6 +49,13 @@ export async function signup(nome: string, email: string, senha: string): Promis
   return login(email, senha)
 }
 
+export const ADMIN_EMAIL = "newtonepv@gmail.com"
+
+export function isAdmin(): boolean {
+  const user = getCurrentUser()
+  return user?.email === ADMIN_EMAIL
+}
+
 export function logout() {
   localStorage.removeItem(SESSION_KEY)
   localStorage.removeItem(TOKEN_KEY)

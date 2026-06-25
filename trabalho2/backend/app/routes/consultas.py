@@ -33,6 +33,28 @@ def criar_consulta(dados: ConsultaCreate, db: Session = Depends(get_db)):
     db.refresh(nova)
     return nova
 
+@router.put("/{consulta_id}", response_model=ConsultaResponse)
+def atualizar_consulta(consulta_id: str, dados: ConsultaCreate, db: Session = Depends(get_db)):
+    c = db.query(Consulta).filter(Consulta.id == consulta_id).first()
+    if not c:
+        raise HTTPException(status_code=404, detail="Consulta não encontrada")
+    # check unique constraint only if data/horario changed
+    if dados.data != c.data or dados.horario != c.horario:
+        existe = db.query(Consulta).filter(
+            Consulta.data == dados.data,
+            Consulta.horario == dados.horario,
+            Consulta.id != consulta_id
+        ).first()
+        if existe:
+            raise HTTPException(status_code=409, detail="Horário já reservado nesta data")
+    c.data = dados.data
+    c.horario = dados.horario
+    c.cliente = dados.cliente
+    c.descricao = dados.descricao
+    db.commit()
+    db.refresh(c)
+    return c
+
 @router.delete("/{consulta_id}", status_code=204)
 def deletar_consulta(consulta_id: str, db: Session = Depends(get_db)):
     c = db.query(Consulta).filter(Consulta.id == consulta_id).first()

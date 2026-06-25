@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   getProjetos,
   createProjeto,
@@ -9,7 +10,9 @@ import {
   type Projeto,
   type ProjetoCreate,
 } from "@/lib/api"
-import { TextInput } from "@/components/input"
+import { getCurrentUser, isAdmin, logout } from "@/lib/auth"
+import { TextInput, DateInput, SelectField, TextareaField, FormField } from "@/components/input"
+import { ErrorBanner } from "@/components/error-banner"
 import {
   Plus,
   Pencil,
@@ -20,6 +23,7 @@ import {
   Calendar,
   ChevronRight,
   Loader2,
+  LogOut,
 } from "lucide-react"
 
 // Tipos e helpers
@@ -54,19 +58,49 @@ function FormularioProjeto({ inicial, titulo, onSalvar, onCancelar }: Formulario
   const [form, setForm] = useState<ProjetoCreate>(inicial)
   const [erros, setErros] = useState<Partial<Record<keyof ProjetoCreate, string>>>({})
   const [salvando, setSalvando] = useState(false)
+  const [imagemFile, setImagemFile] = useState<File | null>(null)
 
   const set = (campo: keyof ProjetoCreate, valor: string) => {
     setForm((f) => ({ ...f, [campo]: valor }))
     setErros((e) => ({ ...e, [campo]: "" }))
   }
 
+  const handleImagemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith("image/")) {
+      set("imagem_url", "")
+      return
+    }
+    setImagemFile(file)
+    const reader = new FileReader()
+    reader.onload = () => {
+      set("imagem_url", reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
   const validar = (): boolean => {
     const novos: typeof erros = {}
     if (!form.nome.trim()) novos.nome = "Nome é obrigatório"
-    if (!form.data_inicio) novos.data_inicio = "Data de início é obrigatória"
-    if (form.data_fim && form.data_inicio && form.data_fim < form.data_inicio) {
-      novos.data_fim = "Data de fim deve ser após o início"
+    const hoje = new Date().toISOString().split("T")[0]
+
+    if (!form.data_inicio) {
+      novos.data_inicio = "Data de início é obrigatória"
+    } else if (form.data_inicio > hoje) {
+      novos.data_inicio = "A data de início deve ser anterior ou igual a hoje"
     }
+
+    if (form.data_fim) {
+      if (form.data_inicio && form.data_fim <= form.data_inicio) {
+        novos.data_fim = "A data de conclusão deve ser posterior à data de início"
+      } else if (form.data_fim > hoje) {
+        novos.data_fim = "A data de conclusão deve ser anterior ou igual a hoje"
+      }
+    }
+
+    if (!form.imagem_url) novos.imagem_url = "Imagem é obrigatória"
+
     setErros(novos)
     return Object.keys(novos).length === 0
   }
@@ -102,75 +136,60 @@ function FormularioProjeto({ inicial, titulo, onSalvar, onCancelar }: Formulario
         />
 
         {/* categoria */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-foreground">Categoria</label>
-          <select
-            value={form.categoria}
-            onChange={(e) => set("categoria", e.target.value)}
-            className="w-full px-4 py-3 bg-card border border-border rounded text-foreground focus:outline-none focus:border-primary"
-          >
-            {CATEGORIAS.map((c) => (
-              <option key={c} value={c} className="bg-card">
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SelectField
+          label="Categoria"
+          value={form.categoria}
+          onChange={(e) => set("categoria", e.target.value)}
+          error={erros.categoria}
+        >
+          {CATEGORIAS.map((c) => (
+            <option key={c} value={c} className="bg-secondary">
+              {c}
+            </option>
+          ))}
+        </SelectField>
 
         {/* período */}
         <div className="grid sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-foreground">Data de início</label>
-            <input
-              type="date"
-              value={form.data_inicio}
-              onChange={(e) => set("data_inicio", e.target.value)}
-              className="w-full px-4 py-3 bg-card border border-border rounded text-foreground focus:outline-none focus:border-primary"
-            />
-            {erros.data_inicio && (
-              <span className="text-sm text-destructive">{erros.data_inicio}</span>
-            )}
-          </div>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-foreground">
-              Data de fim{" "}
-              <span className="text-muted-foreground font-normal">(vazio = em andamento)</span>
-            </label>
-            <input
-              type="date"
-              value={form.data_fim ?? ""}
-              onChange={(e) => set("data_fim", e.target.value)}
-              className="w-full px-4 py-3 bg-card border border-border rounded text-foreground focus:outline-none focus:border-primary"
-            />
-            {erros.data_fim && (
-              <span className="text-sm text-destructive">{erros.data_fim}</span>
-            )}
-          </div>
-        </div>
-
-        {/* descrição */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-foreground">
-            Descrição{" "}
-            <span className="text-muted-foreground font-normal">(opcional)</span>
-          </label>
-          <textarea
-            value={form.descricao ?? ""}
-            onChange={(e) => set("descricao", e.target.value)}
-            placeholder="Descreva o projeto, materiais usados, desafios, resultados..."
-            rows={4}
-            className="w-full px-4 py-3 bg-card border border-border rounded text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:border-primary"
+          <DateInput
+            label="Data de início"
+            value={form.data_inicio}
+            onChange={(e) => set("data_inicio", e.target.value)}
+            max={new Date().toISOString().split("T")[0]}
+            error={erros.data_inicio}
+          />
+          <DateInput
+            label={<>Data de fim <span className="text-muted-foreground font-normal">(vazio = em andamento)</span></>}
+            value={form.data_fim ?? ""}
+            onChange={(e) => set("data_fim", e.target.value)}
+            max={new Date().toISOString().split("T")[0]}
+            min={form.data_inicio || undefined}
+            error={erros.data_fim}
           />
         </div>
 
-        {/* imagem url */}
-        <TextInput
-          label="URL da imagem (opcional)"
-          value={form.imagem_url ?? ""}
-          onChange={(e) => set("imagem_url", e.target.value)}
-          placeholder="https://..."
-          icon={<ImageOff size={18} />}
+        {/* descrição */}
+        <TextareaField
+          label={<>Descrição <span className="text-muted-foreground font-normal">(opcional)</span></>}
+          value={form.descricao ?? ""}
+          onChange={(e) => set("descricao", e.target.value)}
+          placeholder="Descreva o projeto, materiais usados, desafios, resultados..."
+          rows={4}
         />
+
+        {/* imagem url */}
+        <FormField label="Imagem do projeto *" error={erros.imagem_url}>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImagemChange}
+            required={!form.imagem_url}
+            className="w-full px-4 py-3 bg-secondary border border-border rounded text-foreground file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-primary file:text-primary-foreground file:text-sm cursor-pointer"
+          />
+          {form.imagem_url && (
+            <img src={form.imagem_url} alt="Preview" className="mt-2 h-24 w-full object-cover rounded border border-border" />
+          )}
+        </FormField>
 
         {/* ações */}
         <div className="flex gap-3 pt-2">
@@ -282,12 +301,23 @@ function LinhaProjeto({ projeto, onEditar, onDeletar, deletando }: LinhaProjetoP
 // Página principal - Backoffice
 
 export default function Backoffice() {
+  const router = useRouter()
   const [projetos, setProjetos] = useState<Projeto[]>([])
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
   const [exibirForm, setExibirForm] = useState(false)
   const [editando, setEditando] = useState<Projeto | null>(null)
   const [deletando, setDeletando] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!getCurrentUser() || !isAdmin()) {
+      router.replace("/login")
+    }
+  }, [])
+
+  const handleSair = () => {
+    logout()
+  }
 
   const carregarProjetos = async () => {
     setLoading(true)
@@ -328,18 +358,23 @@ export default function Backoffice() {
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
-      {/* cabeçalho */}
+      {/* top bar — only Sair */}
+      <div className="flex justify-end mb-6">
+        <button
+          onClick={handleSair}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <LogOut size={16} />
+          Sair
+        </button>
+      </div>
+
+      {/* page header */}
       <div className="flex items-center justify-between mb-10">
         <div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-            <a href="/" className="hover:text-primary transition-colors">Início</a>
-            <ChevronRight size={14} />
-            <span className="text-foreground">Backoffice</span>
-          </div>
           <h1 className="font-serif text-4xl font-bold text-foreground">Backoffice</h1>
           <p className="text-muted-foreground mt-1">Gerenciamento de projetos do portfólio</p>
         </div>
-
         {!exibirForm && !editando && (
           <button
             onClick={() => setExibirForm(true)}
@@ -402,20 +437,12 @@ export default function Backoffice() {
         )}
 
         {erro && !loading && (
-          <p className="text-center text-destructive py-12">{erro}</p>
+          <ErrorBanner message={erro} className="mb-6" />
         )}
 
         {!loading && !erro && projetos.length === 0 && (
           <div className="text-center py-16 border border-dashed border-border rounded-2xl">
             <p className="text-muted-foreground">Nenhum projeto cadastrado ainda.</p>
-            {!exibirForm && (
-              <button
-                onClick={() => setExibirForm(true)}
-                className="mt-4 text-primary hover:underline text-sm font-medium"
-              >
-                Adicionar o primeiro projeto
-              </button>
-            )}
           </div>
         )}
 

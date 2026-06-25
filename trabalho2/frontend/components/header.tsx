@@ -12,6 +12,8 @@ export function Header() {
     setLoggedIn(!!getCurrentUser())
   }, [])
 
+  if (pathname === "/backoffice") return null
+
   const handleSair = (e: React.MouseEvent) => {
     e.preventDefault()
     logout()

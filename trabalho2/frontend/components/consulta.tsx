@@ -56,7 +56,7 @@ export function ConsultaCard({
         </button>
         <button
           onClick={() => onDelete(id)}
-          className="p-2 bg-destructive text-white rounded hover:opacity-75"
+          className="p-2 bg-destructive text-destructive-foreground rounded hover:opacity-75"
           title="Deletar"
         >
           <Trash2 size={20} />

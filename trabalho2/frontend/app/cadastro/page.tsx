@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { TextInput } from "@/components/input"
-import { Mail, Lock, User, Upload } from "lucide-react"
+import { ErrorBanner } from "@/components/error-banner"
+import { Mail, Lock, User } from "lucide-react"
 import { signup } from "@/lib/auth"
 
 export default function Cadastro() {
@@ -12,18 +13,16 @@ export default function Cadastro() {
   const [email, setEmail] = useState("")
   const [senha, setSenha] = useState("")
   const [confirmaSenha, setConfirmaSenha] = useState("")
-  const [imagem, setImagem] = useState<File | null>(null)
   const [erros, setErros] = useState({
     nome: "",
     email: "",
     senha: "",
     confirmaSenha: "",
-    imagem: "",
     geral: "",
   })
 
   const validar = () => {
-    const novosErros = { nome: "", email: "", senha: "", confirmaSenha: "", imagem: "", geral: "" }
+    const novosErros = { nome: "", email: "", senha: "", confirmaSenha: "", geral: "" }
     if (!nome) novosErros.nome = "Nome é obrigatório"
     else if (nome.length < 3) novosErros.nome = "Nome deve ter pelo menos 3 caracteres"
     if (!email) novosErros.email = "Email é obrigatório"
@@ -32,7 +31,6 @@ export default function Cadastro() {
     else if (senha.length < 6) novosErros.senha = "Senha deve ter pelo menos 6 caracteres"
     if (!confirmaSenha) novosErros.confirmaSenha = "Confirmação de senha é obrigatória"
     else if (confirmaSenha !== senha) novosErros.confirmaSenha = "Senhas não correspondem"
-    if (!imagem) novosErros.imagem = "Imagem é obrigatória"
     setErros(novosErros)
     return !Object.entries(novosErros).some(([k, v]) => k !== "geral" && v)
   }
@@ -51,19 +49,6 @@ export default function Cadastro() {
     }
   }
 
-  const handleImagemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const arquivo = e.target.files?.[0]
-    if (arquivo) {
-      if (!arquivo.type.startsWith("image/")) {
-        setErros((prev) => ({ ...prev, imagem: "Selecione uma imagem válida" }))
-        setImagem(null)
-      } else {
-        setImagem(arquivo)
-        setErros((prev) => ({ ...prev, imagem: "" }))
-      }
-    }
-  }
-
   return (
     <main className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 flex items-center justify-center">
@@ -79,9 +64,7 @@ export default function Cadastro() {
             </div>
 
             {erros.geral && (
-              <div className="mb-4 p-3 bg-destructive/10 border border-destructive rounded text-destructive text-sm">
-                {erros.geral}
-              </div>
+              <ErrorBanner message={erros.geral} className="mb-2" />
             )}
 
             <form onSubmit={handleCadastro} className="space-y-6">
@@ -136,29 +119,6 @@ export default function Cadastro() {
                 error={erros.confirmaSenha}
                 icon={<Lock size={20} />}
               />
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">
-                  Foto de Perfil
-                </label>
-                <label className="flex items-center justify-center w-full p-4 border-2 border-dashed rounded cursor-pointer hover:opacity-75">
-                  <div className="flex flex-col items-center gap-2">
-                    <Upload className="text-primary" size={24} />
-                    <span className="text-sm text-muted-foreground">
-                      {imagem ? imagem.name : "Clique para selecionar imagem"}
-                    </span>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImagemChange}
-                    className="hidden"
-                  />
-                </label>
-                {erros.imagem && (
-                  <span className="text-sm text-destructive">{erros.imagem}</span>
-                )}
-              </div>
 
               <button
                 type="submit"

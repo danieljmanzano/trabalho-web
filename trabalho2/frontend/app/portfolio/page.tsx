@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { getProjetos, type Projeto } from "@/lib/api"
 import { Calendar, Tag, ImageOff } from "lucide-react"
+import { ErrorBanner } from "@/components/error-banner"
 
 const CATEGORIAS = ["Todas", "Residencial", "Comercial", "Reforma", "Regularização"] as const
 
@@ -38,7 +39,7 @@ function ProjetoCard({ projeto }: { projeto: Projeto }) {
         )}
 
         {/* badge de categoria */}
-        <span className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm text-primary text-xs font-semibold px-3 py-1.5 rounded-full border border-primary/30">
+        <span className="absolute top-3 left-3 flex items-center gap-1.5 bg-background/60 backdrop-blur-sm text-primary text-xs font-semibold px-3 py-1.5 rounded-full border border-primary/30">
           <Tag size={11} />
           {projeto.categoria}
         </span>
@@ -127,9 +128,7 @@ export default function Portfolio() {
       )}
 
       {erro && !loading && (
-        <div className="flex items-center gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-500 mb-6">
-          <span>{erro}</span>
-        </div>
+        <ErrorBanner message={erro} className="mb-6" />
       )}
 
       {!loading && !erro && projetosFiltrados.length === 0 && (

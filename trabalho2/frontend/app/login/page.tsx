@@ -3,8 +3,9 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { TextInput } from "@/components/input"
+import { ErrorBanner } from "@/components/error-banner"
 import { Mail, Lock } from "lucide-react"
-import { login } from "@/lib/auth"
+import { login, isAdmin } from "@/lib/auth"
 
 export default function Login() {
   const router = useRouter()
@@ -27,7 +28,7 @@ export default function Login() {
     if (!validar()) return
     try {
       await login(email, senha)
-      router.push("/consultoria")
+      router.push(isAdmin() ? "/backoffice" : "/consultoria")
     } catch (err: unknown) {
       setErros((prev) => ({
         ...prev,
@@ -48,11 +49,7 @@ export default function Login() {
               <p className="text-muted-foreground">Entre com suas credenciais</p>
             </div>
 
-            {erros.geral && (
-              <div className="mb-4 p-3 bg-destructive/10 border border-destructive rounded text-destructive text-sm">
-                {erros.geral}
-              </div>
-            )}
+            {erros.geral && <ErrorBanner message={erros.geral} className="mb-2" />}
 
             <form onSubmit={handleLogin} className="space-y-6">
               <TextInput
