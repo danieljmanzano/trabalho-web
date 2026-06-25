@@ -1,46 +1,43 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { TextInput } from "@/components/input"
 import { Mail, Lock } from "lucide-react"
+import { login } from "@/lib/auth"
 
 export default function Login() {
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [senha, setSenha] = useState("")
-  const [erros, setErros] = useState({ email: "", senha: "" })
+  const [erros, setErros] = useState({ email: "", senha: "", geral: "" })
 
   const validar = () => {
-    const novosErros = { email: "", senha: "" }
-
-    if (!email) {
-      novosErros.email = "Email é obrigatório"
-    } else if (!email.includes("@")) {
-      novosErros.email = "Email inválido"
-    }
-
-    if (!senha) {
-      novosErros.senha = "Senha é obrigatória"
-    } else if (senha.length < 6) {
-      novosErros.senha = "Senha deve ter pelo menos 6 caracteres"
-    }
-
+    const novosErros = { email: "", senha: "", geral: "" }
+    if (!email) novosErros.email = "Email é obrigatório"
+    else if (!email.includes("@")) novosErros.email = "Email inválido"
+    if (!senha) novosErros.senha = "Senha é obrigatória"
+    else if (senha.length < 6) novosErros.senha = "Senha deve ter pelo menos 6 caracteres"
     setErros(novosErros)
     return !novosErros.email && !novosErros.senha
   }
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    const isValido = validar()
-    if (!isValido) {
-      return
+    if (!validar()) return
+    try {
+      await login(email, senha)
+      router.push("/consultoria")
+    } catch (err: unknown) {
+      setErros((prev) => ({
+        ...prev,
+        geral: err instanceof Error ? err.message : "Erro ao fazer login",
+      }))
     }
-    // Aqui você faria o envio dos dados para o servidor
-    console.log("Fazendo login com:", { email, senha })
   }
 
   return (
     <main className="min-h-screen bg-background flex flex-col">
-
       <div className="flex-1 flex items-center justify-center">
         <section className="container mx-auto px-4 py-12">
           <div className="max-w-md mx-auto">
@@ -48,10 +45,14 @@ export default function Login() {
               <h1 className="font-serif text-4xl font-bold text-foreground mb-2">
                 Bem-vindo
               </h1>
-              <p className="text-muted-foreground">
-                Entre com suas credenciais
-              </p>
+              <p className="text-muted-foreground">Entre com suas credenciais</p>
             </div>
+
+            {erros.geral && (
+              <div className="mb-4 p-3 bg-destructive/10 border border-destructive rounded text-destructive text-sm">
+                {erros.geral}
+              </div>
+            )}
 
             <form onSubmit={handleLogin} className="space-y-6">
               <TextInput
@@ -91,10 +92,7 @@ export default function Login() {
             <div className="text-center mt-6">
               <p className="text-muted-foreground text-sm">
                 Não tem conta?{" "}
-                <a
-                  href="/cadastro"
-                  className="text-primary hover:underline font-medium"
-                >
+                <a href="/cadastro" className="text-primary hover:underline font-medium">
                   Cadastre-se
                 </a>
               </p>

@@ -81,7 +81,7 @@ export default function Portfolio() {
   useEffect(() => {
     getProjetos()
       .then(setProjetos)
-      .catch(() => setErro("Não foi possível carregar os projetos."))
+      .catch(() => setErro("Erro ao conectar com o servidor. Tente novamente mais tarde."))
       .finally(() => setLoading(false))
   }, [])
 
@@ -127,8 +127,8 @@ export default function Portfolio() {
       )}
 
       {erro && !loading && (
-        <div className="text-center py-24 text-muted-foreground">
-          <p className="text-destructive mb-2">{erro}</p>
+        <div className="flex items-center gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-500 mb-6">
+          <span>{erro}</span>
         </div>
       )}
 

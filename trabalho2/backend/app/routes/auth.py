@@ -13,9 +13,9 @@ def cadastro(dados: UserCreate, db: Session = Depends(get_db)):
     """
     Cadastra um novo usuário.
 
-    - **nome**: nome completo
-    - **email**: endereço de e-mail único
-    - **senha**: mínimo 6 caracteres
+    - nome: nome completo
+    - email: endereço de e-mail único
+    - senha: mínimo 6 caracteres
     """
     return cadastrar_usuario(db, dados)
 
@@ -25,8 +25,8 @@ def login(dados: UserLogin, db: Session = Depends(get_db)):
     """
     Autentica o usuário e retorna um token JWT.
 
-    - **email**: e-mail cadastrado
-    - **senha**: senha do usuário
+    - email: e-mail cadastrado
+    - senha: senha do usuário
     """
     token = autenticar_usuario(db, dados.email, dados.senha)
     return Token(access_token=token)

@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.config import settings
 
-engine = create_engine(settings.DATABASE_URL) # comunicação com o Neon DB
+engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -12,7 +12,7 @@ Base = declarative_base()
 
 
 def get_db():
-    """Dependency do FastAPI: fornece sessão de banco e fecha ao final da request."""
+    """ padrão de design Dependency injection fornece sessão de banco e fecha ao final da request."""
     db = SessionLocal()
     try:
         yield db

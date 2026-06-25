@@ -1,10 +1,13 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { TextInput } from "@/components/input"
 import { Mail, Lock, User, Upload } from "lucide-react"
+import { signup } from "@/lib/auth"
 
 export default function Cadastro() {
+  const router = useRouter()
   const [nome, setNome] = useState("")
   const [email, setEmail] = useState("")
   const [senha, setSenha] = useState("")
@@ -16,51 +19,36 @@ export default function Cadastro() {
     senha: "",
     confirmaSenha: "",
     imagem: "",
+    geral: "",
   })
 
   const validar = () => {
-    const novosErros = { nome: "", email: "", senha: "", confirmaSenha: "", imagem: "" }
-
-    if (!nome) {
-      novosErros.nome = "Nome é obrigatório"
-    } else if (nome.length < 3) {
-      novosErros.nome = "Nome deve ter pelo menos 3 caracteres"
-    }
-
-    if (!email) {
-      novosErros.email = "Email é obrigatório"
-    } else if (!email.includes("@")) {
-      novosErros.email = "Email inválido"
-    }
-
-    if (!senha) {
-      novosErros.senha = "Senha é obrigatória"
-    } else if (senha.length < 6) {
-      novosErros.senha = "Senha deve ter pelo menos 6 caracteres"
-    }
-
-    if (!confirmaSenha) {
-      novosErros.confirmaSenha = "Confirmação de senha é obrigatória"
-    } else if (confirmaSenha !== senha) {
-      novosErros.confirmaSenha = "Senhas não correspondem"
-    }
-
-    if (!imagem) {
-      novosErros.imagem = "Imagem é obrigatória"
-    }
-
+    const novosErros = { nome: "", email: "", senha: "", confirmaSenha: "", imagem: "", geral: "" }
+    if (!nome) novosErros.nome = "Nome é obrigatório"
+    else if (nome.length < 3) novosErros.nome = "Nome deve ter pelo menos 3 caracteres"
+    if (!email) novosErros.email = "Email é obrigatório"
+    else if (!email.includes("@")) novosErros.email = "Email inválido"
+    if (!senha) novosErros.senha = "Senha é obrigatória"
+    else if (senha.length < 6) novosErros.senha = "Senha deve ter pelo menos 6 caracteres"
+    if (!confirmaSenha) novosErros.confirmaSenha = "Confirmação de senha é obrigatória"
+    else if (confirmaSenha !== senha) novosErros.confirmaSenha = "Senhas não correspondem"
+    if (!imagem) novosErros.imagem = "Imagem é obrigatória"
     setErros(novosErros)
-    return !Object.values(novosErros).some((erro) => erro)
+    return !Object.entries(novosErros).some(([k, v]) => k !== "geral" && v)
   }
 
-  const handleCadastro = (e: React.FormEvent) => {
+  const handleCadastro = async (e: React.FormEvent) => {
     e.preventDefault()
-    const isValido = validar()
-    if (!isValido) {
-      return
+    if (!validar()) return
+    try {
+      await signup(nome, email, senha)
+      router.push("/consultoria")
+    } catch (err: unknown) {
+      setErros((prev) => ({
+        ...prev,
+        geral: err instanceof Error ? err.message : "Erro ao cadastrar",
+      }))
     }
-    // TODO (parte 2 do projeto): aqui seria feito o envio dos dados para o servidor
-    console.log("Cadastrando novo usuário:", { nome, email, senha, imagem })
   }
 
   const handleImagemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,7 +59,6 @@ export default function Cadastro() {
         setImagem(null)
       } else {
         setImagem(arquivo)
-        // mantém os erros antigos ...
         setErros((prev) => ({ ...prev, imagem: "" }))
       }
     }
@@ -79,7 +66,6 @@ export default function Cadastro() {
 
   return (
     <main className="min-h-screen bg-background flex flex-col">
-
       <div className="flex-1 flex items-center justify-center">
         <section className="container mx-auto px-4 py-12">
           <div className="max-w-md mx-auto">
@@ -91,6 +77,12 @@ export default function Cadastro() {
                 Preencha os dados abaixo para se cadastrar
               </p>
             </div>
+
+            {erros.geral && (
+              <div className="mb-4 p-3 bg-destructive/10 border border-destructive rounded text-destructive text-sm">
+                {erros.geral}
+              </div>
+            )}
 
             <form onSubmit={handleCadastro} className="space-y-6">
               <TextInput
@@ -179,10 +171,7 @@ export default function Cadastro() {
             <div className="text-center mt-6">
               <p className="text-muted-foreground text-sm">
                 Já tem conta?{" "}
-                <a
-                  href="/login"
-                  className="text-primary hover:underline font-medium"
-                >
+                <a href="/login" className="text-primary hover:underline font-medium">
                   Faça login
                 </a>
               </p>

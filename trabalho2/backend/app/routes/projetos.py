@@ -22,12 +22,12 @@ def criar_projeto(dados: ProjetoCreate, db: Session = Depends(get_db)):
     """
     Cria um novo projeto.
 
-    - **nome**: nome do projeto
-    - **categoria**: ex: Residencial, Comercial, Reforma...
-    - **descricao**: descrição detalhada (opcional)
-    - **data_inicio**: início do projeto (YYYY-MM-DD)
-    - **data_fim**: conclusão do projeto (opcional, None = em andamento)
-    - **imagem_url**: URL da imagem de capa (opcional)
+    - nome: nome do projeto
+    - categoria: ex: Residencial, Comercial, Reforma...
+    - descricao: descrição detalhada (opcional)
+    - data_inicio: início do projeto (YYYY-MM-DD)
+    - data_fim: conclusão do projeto (opcional, None = em andamento)
+    - imagem_url: URL da imagem de capa (opcional)
     """
     projeto = Projeto(**dados.model_dump())
     db.add(projeto)

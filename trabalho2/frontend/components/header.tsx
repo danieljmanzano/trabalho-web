@@ -1,4 +1,26 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
+import { getCurrentUser, logout } from "@/lib/auth"
+
 export function Header() {
+  const pathname = usePathname()
+  const [loggedIn, setLoggedIn] = useState(false)
+
+  useEffect(() => {
+    setLoggedIn(!!getCurrentUser())
+  }, [])
+
+  const handleSair = (e: React.MouseEvent) => {
+    e.preventDefault()
+    logout()
+    window.location.href = "/"
+  }
+
+  const linkClass = (href: string) =>
+    `text-sm hover:text-primary ${pathname === href ? "text-primary font-bold" : "text-foreground"}`
+
   return (
     <header className="bg-background border-b">
       {/* justify-between: espaço máximo entre os filhos */}
@@ -13,36 +35,31 @@ export function Header() {
         </a>
 
         <nav className="flex gap-8">
-          <a
-            href="/"
-            className="text-sm text-foreground hover:text-primary"
-          >
+          <a href="/" className={linkClass("/")}>
             Início
           </a>
-          <a
-            href="/portfolio"
-            className="text-sm text-foreground hover:text-primary"
-          >
+          <a href="/portfolio" className={linkClass("/portfolio")}>
             Portfólio
           </a>
-          <a
-            href="/consultoria"
-            className="text-sm text-foreground hover:text-primary"
-          >
-            Agendamentos
-          </a>
-          <a
-            href="/login"
-            className="text-sm text-foreground hover:text-primary"
-          >
-            Login
-          </a>
-          <a
-            href="/cadastro"
-            className="text-sm text-foreground hover:text-primary"
-          >
-            Cadastro
-          </a>
+          {loggedIn && (
+            <a href="/consultoria" className={linkClass("/consultoria")}>
+              Agendamentos
+            </a>
+          )}
+          {loggedIn ? (
+            <a href="#" onClick={handleSair} className="text-sm hover:text-primary text-foreground">
+              Sair
+            </a>
+          ) : (
+            <>
+              <a href="/login" className={linkClass("/login")}>
+                Login
+              </a>
+              <a href="/cadastro" className={linkClass("/cadastro")}>
+                Cadastro
+              </a>
+            </>
+          )}
         </nav>
       </div>
     </header>

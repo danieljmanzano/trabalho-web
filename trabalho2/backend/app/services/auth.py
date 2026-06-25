@@ -64,5 +64,5 @@ def autenticar_usuario(db: Session, email: str, senha: str) -> str:
             detail="Email ou senha inválidos",
         )
 
-    token = criar_token({"sub": str(usuario.id), "email": usuario.email})
+    token = criar_token({"sub": str(usuario.id), "email": usuario.email, "nome": usuario.nome})
     return token
