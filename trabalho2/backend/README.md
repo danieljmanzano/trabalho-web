@@ -56,14 +56,22 @@ pip install -r requirements.txt
 
 ### 3. Configurar variáveis de ambiente
 
-Edite o arquivo `.env` na raiz do backend com os valores adequados:
+Copie o arquivo de exemplo e preencha com seus valores:
+
+```bash
+cp .env.example .env
+```
+
+Edite o `.env` gerado:
 
 ```
-DATABASE_URL=postgresql://...
-SECRET_KEY=sua-chave-secreta
+DATABASE_URL=postgresql://usuario:senha@host/banco?sslmode=require
+SECRET_KEY=sua-chave-secreta-longa-e-aleatoria
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
 ```
+
+> **Nunca commite o arquivo `.env`** — ele já está no `.gitignore`.
 
 ### 4. Rodar o servidor
 
