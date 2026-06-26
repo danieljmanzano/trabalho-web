@@ -14,12 +14,13 @@ export interface Consulta {
   cliente: string
   descricao: string
   criadoEm: string
+  user_email: string
 }
 
 const BASE = "http://localhost:8000/consultas"
 
-export async function getConsultas(): Promise<Consulta[]> {
-  const res = await fetch(BASE)
+export async function getConsultas(userEmail: string): Promise<Consulta[]> {
+  const res = await fetch(`${BASE}?user_email=${userEmail}`)
   if (!res.ok) throw new Error(`Erro ${res.status} ao buscar consultas`)
   const data = await res.json()
   return (data as Consulta[]).sort(
@@ -27,11 +28,18 @@ export async function getConsultas(): Promise<Consulta[]> {
   )
 }
 
+export async function getAllConsultas(): Promise<Consulta[]> {
+  const res = await fetch(`${BASE}/`)
+  if (!res.ok) throw new Error("Erro ao carregar horários")
+  return res.json()
+}
+
 export async function addConsulta(payload: {
   data: string
   horario: HorarioValue
   cliente: string
   descricao: string
+  user_email: string
 }): Promise<Consulta> {
   const res = await fetch(BASE, {
     method: "POST",
@@ -44,9 +52,10 @@ export async function addConsulta(payload: {
 
 export async function updateConsulta(
   id: string,
+  userEmail: string,
   payload: { data: string; horario: HorarioValue; cliente: string; descricao: string }
 ): Promise<Consulta> {
-  const res = await fetch(`${BASE}/${id}`, {
+  const res = await fetch(`${BASE}/${id}?user_email=${userEmail}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -55,8 +64,8 @@ export async function updateConsulta(
   return res.json()
 }
 
-export async function deleteConsulta(id: string): Promise<void> {
-  const res = await fetch(`${BASE}/${id}`, { method: "DELETE" })
+export async function deleteConsulta(id: string, userEmail: string): Promise<void> {
+  const res = await fetch(`${BASE}/${id}?user_email=${userEmail}`, { method: "DELETE" })
   if (!res.ok) throw new Error(`Erro ${res.status} ao excluir consulta`)
 }
 

@@ -10,7 +10,7 @@ export function Header() {
 
   useEffect(() => {
     setLoggedIn(!!getCurrentUser())
-  }, [])
+  }, [pathname])
 
   if (pathname === "/backoffice") return null
 

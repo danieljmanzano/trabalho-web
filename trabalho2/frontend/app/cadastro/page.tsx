@@ -25,8 +25,9 @@ export default function Cadastro() {
     const novosErros = { nome: "", email: "", senha: "", confirmaSenha: "", geral: "" }
     if (!nome) novosErros.nome = "Nome é obrigatório"
     else if (nome.length < 3) novosErros.nome = "Nome deve ter pelo menos 3 caracteres"
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!email) novosErros.email = "Email é obrigatório"
-    else if (!email.includes("@")) novosErros.email = "Email inválido"
+    else if (!emailRegex.test(email)) novosErros.email = "Email inválido"
     if (!senha) novosErros.senha = "Senha é obrigatória"
     else if (senha.length < 6) novosErros.senha = "Senha deve ter pelo menos 6 caracteres"
     if (!confirmaSenha) novosErros.confirmaSenha = "Confirmação de senha é obrigatória"
@@ -67,7 +68,7 @@ export default function Cadastro() {
               <ErrorBanner message={erros.geral} className="mb-2" />
             )}
 
-            <form onSubmit={handleCadastro} className="space-y-6">
+            <form onSubmit={handleCadastro} noValidate className="space-y-6">
               <TextInput
                 label="Nome completo"
                 type="text"

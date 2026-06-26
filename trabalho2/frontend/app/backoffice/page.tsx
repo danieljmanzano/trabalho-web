@@ -36,7 +36,8 @@ const FORM_VAZIO: ProjetoCreate = {
   descricao: "",
   data_inicio: "",
   data_fim: "",
-  imagem_url: "",
+  imagem_data: "",
+  imagem_tipo: "",
 }
 
 function formatarPeriodo(dataInicio: string, dataFim: string | null): string {
@@ -69,13 +70,14 @@ function FormularioProjeto({ inicial, titulo, onSalvar, onCancelar }: Formulario
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith("image/")) {
-      set("imagem_url", "")
+      set("imagem_data", "")
       return
     }
     setImagemFile(file)
     const reader = new FileReader()
     reader.onload = () => {
-      set("imagem_url", reader.result as string)
+      set("imagem_data", reader.result as string)
+      set("imagem_tipo", file.type)
     }
     reader.readAsDataURL(file)
   }
@@ -99,7 +101,7 @@ function FormularioProjeto({ inicial, titulo, onSalvar, onCancelar }: Formulario
       }
     }
 
-    if (!form.imagem_url) novos.imagem_url = "Imagem é obrigatória"
+    if (!form.imagem_data) novos.imagem_data = "Imagem é obrigatória"
 
     setErros(novos)
     return Object.keys(novos).length === 0
@@ -113,7 +115,8 @@ function FormularioProjeto({ inicial, titulo, onSalvar, onCancelar }: Formulario
       await onSalvar({
         ...form,
         data_fim: form.data_fim || null,
-        imagem_url: form.imagem_url || null,
+        imagem_data: form.imagem_data || null,
+        imagem_tipo: form.imagem_tipo || null,
         descricao: form.descricao || null,
       } as ProjetoCreate)
     } finally {
@@ -178,16 +181,16 @@ function FormularioProjeto({ inicial, titulo, onSalvar, onCancelar }: Formulario
         />
 
         {/* imagem url */}
-        <FormField label="Imagem do projeto *" error={erros.imagem_url}>
+        <FormField label="Imagem do projeto *" error={erros.imagem_data}>
           <input
             type="file"
             accept="image/*"
             onChange={handleImagemChange}
-            required={!form.imagem_url}
+            required={!form.imagem_data}
             className="w-full px-4 py-3 bg-secondary border border-border rounded text-foreground file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-primary file:text-primary-foreground file:text-sm cursor-pointer"
           />
-          {form.imagem_url && (
-            <img src={form.imagem_url} alt="Preview" className="mt-2 h-24 w-full object-cover rounded border border-border" />
+          {form.imagem_data && (
+            <img src={form.imagem_data} alt="Preview" className="mt-2 h-24 w-full object-cover rounded border border-border" />
           )}
         </FormField>
 
@@ -235,8 +238,8 @@ function LinhaProjeto({ projeto, onEditar, onDeletar, deletando }: LinhaProjetoP
     <li className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-secondary/40 rounded-xl border border-border hover:border-border/80 transition-colors">
       {/* thumb */}
       <div className="w-14 h-14 rounded-lg bg-secondary border border-border overflow-hidden shrink-0 flex items-center justify-center">
-        {projeto.imagem_url ? (
-          <img src={projeto.imagem_url} alt={projeto.nome} className="w-full h-full object-cover" />
+        {projeto.imagem_data ? (
+          <img src={projeto.imagem_data} alt={projeto.nome} className="w-full h-full object-cover" />
         ) : (
           <ImageOff size={20} className="text-muted-foreground opacity-40" />
         )}
@@ -408,7 +411,8 @@ export default function Backoffice() {
               descricao: editando.descricao ?? "",
               data_inicio: editando.data_inicio,
               data_fim: editando.data_fim ?? "",
-              imagem_url: editando.imagem_url ?? "",
+              imagem_data: editando.imagem_data ?? "",
+              imagem_tipo: editando.imagem_tipo ?? "",
             }}
             titulo={`Editando: ${editando.nome}`}
             onSalvar={handleEditar}

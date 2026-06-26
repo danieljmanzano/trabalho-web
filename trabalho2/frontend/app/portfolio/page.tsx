@@ -25,9 +25,9 @@ function ProjetoCard({ projeto }: { projeto: Projeto }) {
     <article className="group bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 flex flex-col">
       {/* imagem */}
       <div className="aspect-video bg-secondary relative overflow-hidden">
-        {projeto.imagem_url ? (
+        {projeto.imagem_data ? (
           <img
-            src={projeto.imagem_url}
+            src={projeto.imagem_data}
             alt={projeto.nome}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />

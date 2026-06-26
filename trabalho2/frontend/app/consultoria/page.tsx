@@ -9,6 +9,7 @@ import {
   HORARIOS,
   HorarioValue,
   getConsultas,
+  getAllConsultas,
   getHorariosDisponiveis,
   addConsulta,
   updateConsulta,
@@ -29,7 +30,9 @@ const FORM_VAZIO: FormState = { data: "", horario: "", cliente: "", descricao: "
 export default function Consultoria() {
   const router = useRouter()
   const [nomeUsuario, setNomeUsuario] = useState("")
+  const [userEmail, setUserEmail] = useState("")
   const [consultas, setConsultas] = useState<Consulta[]>([])
+  const [todasConsultas, setTodasConsultas] = useState<Consulta[]>([])
   const [error, setError] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [editandoId, setEditandoId] = useState<string | null>(null)
@@ -44,8 +47,13 @@ export default function Consultoria() {
       return
     }
     setNomeUsuario(user.nome)
-    getConsultas()
+    setUserEmail(user.email)
+    const email = user.email
+    getConsultas(email)
       .then(setConsultas)
+      .catch(() => setError("Erro ao conectar com o servidor. Tente novamente mais tarde."))
+    getAllConsultas()
+      .then(setTodasConsultas)
       .catch(() => setError("Erro ao conectar com o servidor. Tente novamente mais tarde."))
   }, [router])
 
@@ -54,7 +62,7 @@ export default function Consultoria() {
       setHorariosDisponiveis(HORARIOS.map((h) => h.value))
       return
     }
-    setHorariosDisponiveis(getHorariosDisponiveis(data, consultas, excluirId))
+    setHorariosDisponiveis(getHorariosDisponiveis(data, todasConsultas, excluirId))
   }
 
   const abrirCriar = () => {
@@ -94,7 +102,12 @@ export default function Consultoria() {
 
   const validar = (): boolean => {
     const novosErros = { data: "", horario: "", cliente: "", geral: "" }
-    if (!form.data) novosErros.data = "Data é obrigatória"
+    const hoje = new Date().toISOString().split("T")[0]
+    if (!form.data) {
+      novosErros.data = "Data é obrigatória"
+    } else if (form.data < hoje) {
+      novosErros.data = "A data não pode ser anterior a hoje"
+    }
     if (!form.horario) novosErros.horario = "Horário é obrigatório"
     if (!form.cliente.trim()) novosErros.cliente = "Cliente é obrigatório"
     setErros(novosErros)
@@ -106,7 +119,7 @@ export default function Consultoria() {
     if (!validar()) return
     try {
       if (editandoId) {
-        await updateConsulta(editandoId, {
+        await updateConsulta(editandoId, userEmail, {
           data: form.data,
           horario: form.horario as HorarioValue,
           cliente: form.cliente.trim(),
@@ -118,10 +131,12 @@ export default function Consultoria() {
           horario: form.horario as HorarioValue,
           cliente: form.cliente.trim(),
           descricao: form.descricao,
+          user_email: userEmail,
         })
       }
-      const updated = await getConsultas()
+      const [updated, todas] = await Promise.all([getConsultas(userEmail), getAllConsultas()])
       setConsultas(updated)
+      setTodasConsultas(todas)
       fecharModal()
     } catch (err: unknown) {
       setErros((prev) => ({
@@ -134,9 +149,10 @@ export default function Consultoria() {
   const handleDeletar = async (id: string) => {
     if (!confirm("Confirma exclusão desta consulta?")) return
     try {
-      await deleteConsulta(id)
-      const updated = await getConsultas()
+      await deleteConsulta(id, userEmail)
+      const [updated, todas] = await Promise.all([getConsultas(userEmail), getAllConsultas()])
       setConsultas(updated)
+      setTodasConsultas(todas)
     } catch {
       setError("Erro ao conectar com o servidor. Tente novamente mais tarde.")
     }
@@ -207,7 +223,7 @@ export default function Consultoria() {
               </button>
             </div>
 
-            <form onSubmit={handleSalvar} className="p-6 space-y-5">
+            <form onSubmit={handleSalvar} noValidate className="p-6 space-y-5">
               {erros.geral && (
                 <ErrorBanner message={erros.geral} />
               )}

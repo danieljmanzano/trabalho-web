@@ -5,7 +5,8 @@ export interface Projeto {
   descricao: string | null
   data_inicio: string // "YYYY-MM-DD"
   data_fim: string | null // null = em andamento
-  imagem_url: string | null
+  imagem_data: string | null
+  imagem_tipo: string | null
   criado_em: string
 }
 
