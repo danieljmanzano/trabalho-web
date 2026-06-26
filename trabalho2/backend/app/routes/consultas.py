@@ -19,7 +19,7 @@ def listar_consultas(user_email: str | None = None, db: Session = Depends(get_db
 
 @router.post("/", response_model=ConsultaResponse, status_code=201)
 def criar_consulta(dados: ConsultaCreate, db: Session = Depends(get_db)):
-    # check unique constraint
+    # Verifica se já existe agendamento no mesmo horário
     existe = db.query(Consulta).filter(Consulta.data == dados.data, Consulta.horario == dados.horario).first()
     if existe:
         raise HTTPException(status_code=409, detail="Horário já reservado nesta data")
@@ -42,7 +42,7 @@ def atualizar_consulta(consulta_id: str, user_email: str, dados: ConsultaCreate,
     c = db.query(Consulta).filter(Consulta.id == consulta_id, Consulta.user_email == user_email).first()
     if not c:
         raise HTTPException(status_code=404, detail="Consulta não encontrada")
-    # check unique constraint only if data/horario changed
+    # Verificar se já existe agendamento no mesmo horário, apenas se data e horário mudarem
     if dados.data != c.data or dados.horario != c.horario:
         existe = db.query(Consulta).filter(
             Consulta.data == dados.data,

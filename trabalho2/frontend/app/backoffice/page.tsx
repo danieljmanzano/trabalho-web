@@ -361,7 +361,7 @@ export default function Backoffice() {
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
-      {/* top bar — only Sair */}
+      {/* top bar - só o botão Sair */}
       <div className="flex justify-end mb-6">
         <button
           onClick={handleSair}
@@ -372,7 +372,7 @@ export default function Backoffice() {
         </button>
       </div>
 
-      {/* page header */}
+      {/* header da página */}
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="font-serif text-4xl font-bold text-foreground">Backoffice</h1>

@@ -9,19 +9,24 @@ Este é o segundo projeto da disciplina de **Introdução ao Desenvolvimento Web
 
 ## Tecnologias utilizadas
 
-- [Next.js 16](https://nextjs.org/) — framework React para aplicações web
-- [TypeScript](https://www.typescriptlang.org/) — tipagem estática
-- [Tailwind CSS](https://tailwindcss.com/) — estilização utilitária
-- [Lucide React](https://lucide.dev/) — ícones
-// colocar aqui as tecnologias do back depois
+### Frontend
+- [Next.js 16](https://nextjs.org/) - framework React para aplicações web
+- [TypeScript](https://www.typescriptlang.org/) - tipagem estática
+- [Tailwind CSS 4](https://tailwindcss.com/) - estilização utilitária
+- [Lucide React](https://lucide.dev/) - ícones
 
+### Backend
+- [FastAPI](https://fastapi.tiangolo.com/) — framework web Python
+- [SQLAlchemy](https://www.sqlalchemy.org/) — ORM
+- [PostgreSQL (NeonDB)](https://neon.tech/) — banco de dados em nuvem
+- [python-jose](https://github.com/mpdavis/python-jose) — tokens JWT
 
 ## Estrutura
 
 ```
 trabalho2/
 ├── frontend/   # Next.js + React + Tailwind CSS
-└── backend/    # Python + FastAPI + SQLite (trocar aqui se trocarmos o banco)
+└── backend/    # Python + FastAPI + PostgreSQL (NeonDB)
 ```
 
 ## Rodando o projeto
@@ -42,7 +47,6 @@ cd backend
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
 uvicorn app.main:app --reload
 # → http://localhost:8000
 # → Docs: http://localhost:8000/docs

@@ -28,7 +28,7 @@ export async function login(email: string, senha: string): Promise<User> {
   }
   const { access_token } = await res.json()
   localStorage.setItem(TOKEN_KEY, access_token)
-  // decode JWT payload to get user info (no verify needed client-side)
+  // decodifica JWT para pegar as infos do usuário (não precisa validar client-side)
   const payload = JSON.parse(atob(access_token.split(".")[1]))
   const user: User = { id: payload.sub, nome: payload.nome ?? "", email: payload.email ?? email }
   localStorage.setItem(SESSION_KEY, JSON.stringify(user))
@@ -45,7 +45,7 @@ export async function signup(nome: string, email: string, senha: string): Promis
     const err = await res.json().catch(() => ({}))
     throw new Error(err.detail ?? "Erro ao criar conta")
   }
-  // after signup, auto-login
+  // depois do cadastro, loga automaticamente
   return login(email, senha)
 }
 

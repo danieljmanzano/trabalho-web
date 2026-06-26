@@ -8,7 +8,7 @@ from app.models import user  # noqa: F401
 from app.models import consulta  # noqa: F401
 from app.models import horario  # noqa: F401
 
-# Cria as tabelas no banco de dados (se não existirem)
+# Cria as tabelas no banco de dados se não existirem
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -17,10 +17,10 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# CORS — permite que o frontend (Next.js em localhost:3000) acesse a API
+# CORS - permite que o frontend (Next.js em localhost:3000) acesse a API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # ajuste em produção
+    allow_origins=["http://localhost:3000"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
