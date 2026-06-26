@@ -1,15 +1,15 @@
 import { ReactNode } from "react"
 
-// Shared input className
+// Padrão dos inputs
 const inputCls = "w-full px-4 py-3 bg-secondary border border-border rounded text-foreground [color-scheme:dark] focus:border-primary focus:outline-none transition-colors"
 
-// FieldError
+// Erro do campo
 export function FieldError({ message }: { message?: string }) {
   if (!message) return null
   return <span className="text-sm text-destructive">{message}</span>
 }
 
-// FormField — label wrapper
+// FormField - label e wrapper dos inputs
 interface FormFieldProps {
   label: ReactNode
   error?: string
@@ -26,7 +26,7 @@ export function FormField({ label, error, children, className = "" }: FormFieldP
   )
 }
 
-// TextInput
+// TextInput - campo de texto
 interface TextInputProps {
   label: string
   type?: string
@@ -54,7 +54,7 @@ export function TextInput({ label, type = "text", value, onChange, placeholder, 
   )
 }
 
-// DateInput
+// DateInput - campo de data
 interface DateInputProps {
   label: ReactNode
   value: string
@@ -80,7 +80,7 @@ export function DateInput({ label, value, onChange, min, max, disabled, error }:
   )
 }
 
-// SelectField
+// SelectField - campo de seleção
 interface SelectFieldProps {
   label: ReactNode
   value: string
@@ -104,7 +104,7 @@ export function SelectField({ label, value, onChange, disabled, error, children 
   )
 }
 
-// TextareaField
+// TextareaField - campo de texto grande
 interface TextareaFieldProps {
   label: ReactNode
   value: string

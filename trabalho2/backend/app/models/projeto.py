@@ -14,6 +14,6 @@ class Projeto(Base):
     descricao = Column(String, nullable=True)
     data_inicio = Column(Date, nullable=False)
     data_fim = Column(Date, nullable=True)  # None = em andamento
-    imagem_data = Column(Text, nullable=True)   # base64 string, may be large
+    imagem_data = Column(Text, nullable=True)   # b64 string, pode ser grande
     imagem_tipo = Column(String(50), nullable=True)
     criado_em = Column(DateTime, server_default=func.now())

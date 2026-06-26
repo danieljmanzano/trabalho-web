@@ -1,28 +1,40 @@
-# Backend — API Python (FastAPI)
+# Backend - API Python (FastAPI)
 
 ## Tecnologias
 
-- **FastAPI** — framework web moderno e rápido
-// colocar aqui o restante do que realmente formos usar
+- **FastAPI** - framework web
+- **SQLAlchemy** - ORM para o banco de dados
+- **PostgreSQL (NeonDB)** - banco de dados em nuvem
+- **Pydantic** - validação de dados e schemas
+- **python-jose** - geração e verificação de tokens JWT
+- **Passlib + bcrypt** - hash de senhas
+- **Uvicorn** - servidor ASGI
 
 ## Estrutura
 
 ```
 backend/
 ├── app/
-│   ├── main.py          ← entry point (FastAPI app)
-│   ├── config.py        ← variáveis de ambiente
-│   ├── database.py      ← conexão com o banco
+│   ├── main.py              ← entry point (FastAPI app + CORS)
+│   ├── config.py            ← variáveis de ambiente (pydantic-settings)
+│   ├── database.py          ← conexão SQLAlchemy + dependency injection
 │   ├── models/
-│   │   └── user.py      ← tabela de usuários
+│   │   ├── user.py          ← tabela users
+│   │   ├── projeto.py       ← tabela projetos
+│   │   ├── consulta.py      ← tabela consultas
+│   │   └── horario.py       ← tabela horarios
 │   ├── schemas/
-│   │   └── user.py      ← validação de dados
+│   │   ├── user.py          ← validação de usuário / token
+│   │   ├── projeto.py       ← validação de projeto
+│   │   └── consulta.py      ← validação de consulta
 │   ├── routes/
-│   │   └── auth.py      ← endpoints: POST /auth/cadastro, POST /auth/login
+│   │   ├── auth.py          ← endpoints de autenticação
+│   │   ├── projetos.py      ← CRUD de projetos
+│   │   └── consultas.py     ← CRUD de consultas
 │   └── services/
-│       └── auth.py      ← lógica de autenticação
+│       └── auth.py          ← lógica de cadastro, login e JWT
 ├── requirements.txt
-├── .env.example
+├── .env
 └── README.md
 ```
 
@@ -42,12 +54,55 @@ source venv/bin/activate   # Linux/macOS
 pip install -r requirements.txt
 ```
 
-// adicionar restante depois
+### 3. Configurar variáveis de ambiente
+
+Edite o arquivo `.env` na raiz do backend com os valores adequados:
+
+```
+DATABASE_URL=postgresql://...
+SECRET_KEY=sua-chave-secreta
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+```
+
+### 4. Rodar o servidor
+
+```bash
+uvicorn app.main:app --reload
+```
+
+A API estará disponível em `http://localhost:8000`.
+A documentação interativa (Swagger) fica em `http://localhost:8000/docs`.
 
 ## Endpoints disponíveis
+
+### Health
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
 | GET | `/` | Health check |
+
+### Autenticação (`/auth`)
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
 | POST | `/auth/cadastro` | Cadastra novo usuário |
 | POST | `/auth/login` | Autentica e retorna JWT |
+
+### Projetos (`/projetos`)
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/projetos/` | Lista todos os projetos |
+| POST | `/projetos/` | Cria um novo projeto |
+| PUT | `/projetos/{id}` | Atualiza um projeto |
+| DELETE | `/projetos/{id}` | Remove um projeto |
+
+### Consultas (`/consultas`)
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/consultas/` | Lista consultas (filtro opcional por `user_email`) |
+| POST | `/consultas/` | Cria uma nova consulta |
+| PUT | `/consultas/{id}` | Atualiza uma consulta |
+| DELETE | `/consultas/{id}` | Remove uma consulta |
