@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from fastapi import HTTPException, status
 from jose import jwt
 from passlib.context import CryptContext
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -48,7 +49,14 @@ def cadastrar_usuario(db: Session, dados: UserCreate) -> User:
         senha_hash=hash_senha(dados.senha),
     )
     db.add(novo_usuario)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email já cadastrado",
+        )
     db.refresh(novo_usuario)
     return novo_usuario
 
