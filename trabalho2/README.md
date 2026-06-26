@@ -16,10 +16,10 @@ Este é o segundo projeto da disciplina de **Introdução ao Desenvolvimento Web
 - [Lucide React](https://lucide.dev/) - ícones
 
 ### Backend
-- [FastAPI](https://fastapi.tiangolo.com/) — framework web Python
-- [SQLAlchemy](https://www.sqlalchemy.org/) — ORM
-- [PostgreSQL (NeonDB)](https://neon.tech/) — banco de dados em nuvem
-- [python-jose](https://github.com/mpdavis/python-jose) — tokens JWT
+- [FastAPI](https://fastapi.tiangolo.com/) - framework web Python
+- [SQLAlchemy](https://www.sqlalchemy.org/) - ORM
+- [PostgreSQL (NeonDB)](https://neon.tech/) - banco de dados em nuvem
+- [python-jose](https://github.com/mpdavis/python-jose) - tokens JWT
 
 ## Estrutura
 
