@@ -11,6 +11,7 @@ import {
   type ProjetoCreate,
 } from "@/lib/api"
 import { getCurrentUser, isAdmin, logout } from "@/lib/auth"
+import { getAllConsultas, getLabelHorario, type Consulta } from "@/lib/consultas"
 import { TextInput, DateInput, SelectField, TextareaField, FormField } from "@/components/input"
 import { ErrorBanner } from "@/components/error-banner"
 import {
@@ -24,6 +25,7 @@ import {
   ChevronRight,
   Loader2,
   LogOut,
+  Clock,
 } from "lucide-react"
 
 // Tipos e helpers
@@ -311,6 +313,9 @@ export default function Backoffice() {
   const [exibirForm, setExibirForm] = useState(false)
   const [editando, setEditando] = useState<Projeto | null>(null)
   const [deletando, setDeletando] = useState<number | null>(null)
+  const [consultas, setConsultas] = useState<Consulta[]>([])
+  const [loadingConsultas, setLoadingConsultas] = useState(true)
+  const [erroConsultas, setErroConsultas] = useState<string | null>(null)
 
   useEffect(() => {
     if (!getCurrentUser() || !isAdmin()) {
@@ -334,7 +339,21 @@ export default function Backoffice() {
     }
   }
 
+  const carregarConsultas = async () => {
+    setLoadingConsultas(true)
+    setErroConsultas(null)
+    try {
+      const todas = await getAllConsultas()
+      setConsultas(todas.sort((a, b) => a.data.localeCompare(b.data) || a.horario.localeCompare(b.horario)))
+    } catch {
+      setErroConsultas("Não foi possível carregar os agendamentos.")
+    } finally {
+      setLoadingConsultas(false)
+    }
+  }
+
   useEffect(() => { carregarProjetos() }, [])
+  useEffect(() => { carregarConsultas() }, [])
 
   const handleCriar = async (dados: ProjetoCreate) => {
     await createProjeto(dados)
@@ -460,6 +479,62 @@ export default function Backoffice() {
                 onDeletar={handleDeletar}
                 deletando={deletando === p.id}
               />
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* lista de agendamentos */}
+      <section className="mt-12">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-serif text-xl font-semibold text-foreground">
+            Agendamentos
+          </h2>
+          {!loadingConsultas && (
+            <span className="text-sm text-muted-foreground">
+              {consultas.length} {consultas.length === 1 ? "agendamento" : "agendamentos"}
+            </span>
+          )}
+        </div>
+
+        {loadingConsultas && (
+          <div className="flex justify-center py-16">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+
+        {erroConsultas && !loadingConsultas && (
+          <ErrorBanner message={erroConsultas} className="mb-6" />
+        )}
+
+        {!loadingConsultas && !erroConsultas && consultas.length === 0 && (
+          <div className="text-center py-16 border border-dashed border-border rounded-2xl">
+            <p className="text-muted-foreground">Nenhum agendamento encontrado.</p>
+          </div>
+        )}
+
+        {!loadingConsultas && !erroConsultas && consultas.length > 0 && (
+          <ul className="space-y-3">
+            {consultas.map((c) => (
+              <li key={c.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-secondary/40 rounded-xl border border-border">
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-foreground truncate">{c.cliente}</p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">{c.user_email}</p>
+                  {c.descricao && (
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{c.descricao}</p>
+                  )}
+                </div>
+                <div className="flex flex-col items-end gap-1 shrink-0 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Calendar size={13} />
+                    {new Date(c.data + "T00:00:00").toLocaleDateString("pt-BR")}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock size={13} />
+                    {getLabelHorario(c.horario)}
+                  </span>
+                </div>
+              </li>
             ))}
           </ul>
         )}
