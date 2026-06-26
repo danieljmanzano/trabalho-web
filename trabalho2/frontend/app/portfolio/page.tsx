@@ -20,9 +20,17 @@ function formatarPeriodo(dataInicio: string, dataFim: string | null): string {
   return `${inicio} – ${fim}`
 }
 
+const INSTAGRAM_URL = "https://www.instagram.com/hadriana51/"
+
 function ProjetoCard({ projeto }: { projeto: Projeto }) {
   return (
-    <article className="group bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 flex flex-col">
+    <a
+      href={INSTAGRAM_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block"
+    >
+    <article className="group bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 flex flex-col cursor-pointer">
       {/* imagem */}
       <div className="aspect-video bg-secondary relative overflow-hidden">
         {projeto.imagem_data ? (
@@ -70,6 +78,7 @@ function ProjetoCard({ projeto }: { projeto: Projeto }) {
         </div>
       </div>
     </article>
+    </a>
   )
 }
 
